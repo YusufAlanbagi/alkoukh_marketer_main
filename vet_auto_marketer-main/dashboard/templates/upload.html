@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}رفع يدوي — عيادة {{ clinic }}{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2>📤 رفع محتوى يدوي</h2>
+      <p class="muted text-sm mt-1">ارفع صورة أو فيديو من جهازك وسنقوم بكتابة كابشن ذكي بهوية العيادة.</p>
+    </div>
+  </div>
+
+  <form method="POST" action="/dashboard/upload" enctype="multipart/form-data" id="uploadForm">
+
+    <div class="field">
+      <label>اختر الملف (صورة أو فيديو)</label>
+      <div id="dropzone"
+           onclick="document.getElementById('fileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('drag');"
+           ondragleave="this.classList.remove('drag');"
+           ondrop="handleDrop(event)"
+           style="border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:var(--transition);background:rgba(255,255,255,0.03);">
+        <div id="dropzoneContent">
+          <div style="font-size:3.5rem;margin-bottom:12px;">📁</div>
+          <div style="font-weight:800; font-size: 1.1rem; color: var(--text-main);">اسحب الملف هنا أو اضغط للاختيار</div>
+          <div class="muted text-sm mt-1">JPG / PNG / MP4 — حتى 100 ميجا</div>
+        </div>
+        <div id="dropzonePreview" style="display:none;">
+          <img id="previewImg" src="" style="max-height:240px;max-width:100%;border-radius:12px;object-fit:contain; border: 1px solid var(--border);" />
+          <div class="mt-2 text-sm" style="color: var(--purple-primary); font-weight: 700;"><span id="fileName"></span></div>
+          <p class="muted text-sm mt-1">اضغط للتغيير</p>
+        </div>
+      </div>
+      <input type="file" id="fileInput" name="file" accept="image/*,video/*" style="display:none;" required
+             onchange="handleFileSelect(this.files[0])" />
+    </div>
+
+    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div class="field">
+        <label>نوع المحتوى</label>
+        <select name="kind" required>
+          <option value="post">📸 بوست (1:1)</option>
+          <option value="story">📱 ستوري (9:16)</option>
+          <option value="reel">🎬 ريلز (9:16)</option>
+        </select>
+      </div>
+      <div class="field" style="display: flex; align-items: flex-end; padding-bottom: 20px;">
+        <label class="checkbox">
+          <input type="checkbox" name="generate_caption" value="true" checked />
+          <span>توليد كابشن تلقائي</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>كابشن مخصص (اختياري)</label>
+      <textarea name="caption" rows="4" placeholder="إذا تبي تضيف لمستك الخاصة هنا..."></textarea>
+      <div class="hint">إذا تركت الحقل فارغاً، سيقوم الذكاء الاصطناعي بكتابة كابشن عراقي مميز.</div>
+    </div>
+
+    <button type="submit" class="btn btn-block" id="submitBtn">⬆️ رفع وإضافة للقائمة الجاهزة</button>
+  </form>
+</div>
+
+<style>
+  #dropzone.drag { border-color: var(--purple-primary); background: rgba(154, 78, 214, 0.1); transform: scale(1.01); }
+</style>
+
+<script>
+const dz = document.getElementById('dropzone');
+function handleFileSelect(file){
+  if (!file) return;
+  const name = document.getElementById('fileName');
+  const img  = document.getElementById('previewImg');
+  name.textContent = file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' MB)';
+  if (file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
+    reader.readAsDataURL(file);
+  } else {
+    img.style.display = 'none';
+  }
+  document.getElementById('dropzoneContent').style.display = 'none';
+  document.getElementById('dropzonePreview').style.display = 'block';
+}
+function handleDrop(e){
+  e.preventDefault();
+  dz.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    document.getElementById('fileInput').files = e.dataTransfer.files;
+    handleFileSelect(file);
+  }
+}
+document.getElementById('uploadForm').addEventListener('submit', () => {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = '⏳ جاري الرفع...';
+  showLoading('جاري رفع الملف وتوليد المحتوى...');
+});
+</script>
+{% endblock %}

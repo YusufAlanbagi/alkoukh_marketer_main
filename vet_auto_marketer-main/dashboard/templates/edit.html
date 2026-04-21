@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}تعديل صورة بالذكاء الاصطناعي — عيادة {{ clinic }}{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2>🪄 تعديل احترافي بالذكاء الاصطناعي</h2>
+      <p class="muted text-sm mt-1">
+        ارفع صورتك واكتب التعديلات المطلوبة بالعربي — سنقوم بترجمتها وتعديلها بجودة عالية.
+      </p>
+    </div>
+  </div>
+
+  <form id="editForm" enctype="multipart/form-data">
+    <div class="field">
+      <label>الصورة الأصلية</label>
+      <div id="dropzone"
+           onclick="document.getElementById('fileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('drag');"
+           ondragleave="this.classList.remove('drag');"
+           ondrop="handleDrop(event)"
+           style="border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:var(--transition);background:rgba(255,255,255,0.03);">
+        <div id="dropzoneContent">
+          <div style="font-size:3.5rem;margin-bottom:12px;">🖼️</div>
+          <div style="font-weight:800; color: var(--text-main);">سحب الصورة هنا أو اضغط للاختيار</div>
+          <div class="muted text-sm mt-1">JPG / PNG — جودة عالية مفضلة</div>
+        </div>
+        <div id="dropzonePreview" style="display:none;">
+          <img id="previewImg" src="" style="max-height:240px;max-width:100%;border-radius:12px;object-fit:contain; border: 1px solid var(--border);" />
+          <div class="mt-2 text-sm" style="color: var(--purple-primary); font-weight: 700;"><span id="fileName"></span></div>
+        </div>
+      </div>
+      <input type="file" id="fileInput" name="file" accept="image/*" style="display:none;" required
+             onchange="handleFileSelect(this.files[0])" />
+    </div>
+
+    <div class="field">
+      <label>وش تريد تغيّر بالصورة؟ (بالعربي)</label>
+      <textarea name="instruction" id="instruction" rows="3"
+                placeholder="مثلاً: خلّي الخلفية بنفسجي غامق وضيف لمسة ذهبية ع الحواف"
+                required></textarea>
+      <div class="hint">ملاحظة: الذكاء الاصطناعي يفهم كلامك بدقة ويحولّه لنتائج احترافية.</div>
+    </div>
+
+    <div class="field">
+      <label>مقاس النتيجة النهائية</label>
+      <select name="kind">
+        <option value="post">📸 بوست (مربّع 1:1)</option>
+        <option value="story">📱 ستوري (عمودي 9:16)</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-block" id="submitBtn">🪄 جاري التعديل السحري...</button>
+  </form>
+
+  <div id="result" style="display:none;margin-top:24px;"></div>
+</div>
+
+<div class="card">
+  <h3>💡 نصائح للحصول على أفضل نتيجة</h3>
+  <ul style="margin-right:20px;line-height:2;" class="muted text-sm">
+    <li>كن محدداً في طلباتك (الألوان، الإضاءة، العناصر الجديدة).</li>
+    <li>اذكر مكان التغيير (مثلاً: فوق القطة، خلف الكلب).</li>
+    <li>التعديل يستغرق حوالي دقيقة واحدة للمعالجة والترجمة.</li>
+  </ul>
+</div>
+
+<style>
+  #dropzone.drag { border-color: var(--purple-primary); background: rgba(154, 78, 214, 0.1); transform: scale(1.01); }
+  #submitBtn:not(.loading) { content: '🪄 عدّل الصورة سحرياً'; }
+</style>
+
+<script>
+const dz = document.getElementById('dropzone');
+let selectedFile = null;
+
+function handleFileSelect(file){
+  if (!file) return;
+  selectedFile = file;
+  const name = document.getElementById('fileName');
+  const img  = document.getElementById('previewImg');
+  name.textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => { img.src = e.target.result; };
+  reader.readAsDataURL(file);
+  document.getElementById('dropzoneContent').style.display = 'none';
+  document.getElementById('dropzonePreview').style.display = 'block';
+}
+function handleDrop(e){
+  e.preventDefault();
+  dz.classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    document.getElementById('fileInput').files = e.dataTransfer.files;
+    handleFileSelect(file);
+  }
+}
+
+const btn = document.getElementById('submitBtn');
+btn.textContent = '🪄 عدّل الصورة سحرياً';
+
+document.getElementById('editForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const result = document.getElementById('result');
+  
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = '⏳ جاري المعالجة السحرية...';
+  showLoading('جاري ترجمة طلبك وتعديل الصورة بالـ AI...');
+
+  try {
+    const r = await fetch('/dashboard/edit', { method: 'POST', body: fd });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({detail:'فشل التعديل'}));
+      throw new Error(err.detail || 'فشل التعديل');
+    }
+    const data = await r.json();
+    toast('تم التعديل بنجاح! 🎉', 'success');
+
+    result.style.display = 'block';
+    result.innerHTML = `
+      <div style="padding:16px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid var(--border);text-align:center;">
+        <div class="text-sm"><strong>✅ تم تعديل الصورة بنجاح!</strong></div>
+        <p class="muted text-sm mt-1 mb-2">تم ترجمة طلبك إلى: <i>${data.english_prompt || ''}</i></p>
+        <a href="/dashboard/ready" class="btn btn-sm btn-outline btn-block">شاهد النتيجة في القائمة الجاهزة ←</a>
+      </div>`;
+  } catch(err) {
+    toast(err.message || 'فشل التعديل', 'error');
+  } finally {
+    hideLoading();
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.textContent = '🪄 عدّل الصورة سحرياً';
+  }
+});
+</script>
+{% endblock %}

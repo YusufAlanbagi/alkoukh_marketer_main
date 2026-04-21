@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(netstat -ano)",
+      "Bash(taskkill /PID 25924 /F)",
+      "Bash(timeout 30 python main.py)",
+      "Bash(PORT=8001 timeout 30 python main.py)",
+      "Bash(timeout 15 python main.py)",
+      "Bash(curl -s http://localhost:8001/health)",
+      "Bash(curl -s -u admin:alkoukh2026 http://localhost:8001/dashboard/)",
+      "Bash(curl -i -u admin:alkoukh2026 http://localhost:8001/dashboard/index)",
+      "Bash(python main.py)",
+      "Bash(tee /tmp/app.log)",
+      "Bash(curl -s -u admin:alkoukh2026 http://localhost:8001/dashboard/index)",
+      "Bash(pip install *)",
+      "Bash(powershell -Command \"Get-Process python -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(tee /tmp/app2.log)",
+      "Bash(pip show *)",
+      "Bash(taskkill /PID 1992 /F)",
+      "Bash(powershell -Command \"Stop-Process -Id 1992 -Force\")",
+      "Bash(curl -s -o /dev/null -w \"Dashboard status: %{http_code}\\\\n\" -u admin:alkoukh2026 http://localhost:8001/dashboard/)",
+      "Bash(curl -s -o /dev/null -w \"Dashboard: %{http_code}\\\\n\" -u admin:alkoukh2026 http://localhost:8001/dashboard/)",
+      "Bash(curl -s -H \"Authorization: Bearer 84135da476f15da3da348092a76ff62c\" https://api.nanobananaapi.ai/api/v1/common/credit)",
+      "Bash(powershell \"Stop-Process -Id 27328 -Force\")",
+      "Bash(curl -s -u admin:alkoukh2026 -X POST -H \"Content-Type: application/json\" -d '{\"topic\":\"تطعيم القطط\"}' http://localhost:8001/dashboard/generate/tip)",
+      "Bash(curl -s -X POST https://api.nanobananaapi.ai/api/v1/nanobanana/generate -H 'Authorization: Bearer 84135da476f15da3da348092a76ff62c' -H 'Content-Type: application/json' -d '{\"prompt\":\"a cat\",\"type\":\"text-to-image\"}')",
+      "Bash(curl -s -X POST https://api.nanobananaapi.ai/api/v1/nanobanana/generate -H 'Authorization: Bearer 84135da476f15da3da348092a76ff62c' -H 'Content-Type: application/json' -d '{\"prompt\":\"a cat\"}')",
+      "Bash(curl -s -X POST https://api.nanobananaapi.ai/api/v1/nanobanana/generate -H 'Authorization: Bearer 84135da476f15da3da348092a76ff62c' -H 'Content-Type: application/json' -d '{\"prompt\":\"a cat\",\"type\":\"__TRACKED_VAR__\"}')",
+      "Bash(curl -s -L \"https://docs.nanobananaapi.ai/api-reference/generate\" -o /tmp/nb1.html -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -s -L \"https://docs.nanobananaapi.ai/\" -o /tmp/nb_index.html -w \"HTTP %{http_code}\\\\n\")",
+      "Bash(curl -s -L \"https://docs.nanobananaapi.ai/introduction\" -o /tmp/nb_intro.html -w \"HTTP %{http_code}\\\\n\")",
+      "WebFetch(domain:docs.nanobananaapi.ai)",
+      "WebFetch(domain:nanobananaapi.ai)",
+      "Bash(curl -s -X POST https://api.nanobananaapi.ai/api/v1/nanobanana/generate -H 'Authorization: Bearer 84135da476f15da3da348092a76ff62c' -H 'Content-Type: application/json' -d '{\"prompt\":\"a cute cat\",\"type\":\"TEXTTOIAMGE\",\"callBackUrl\":\"https://example.com/cb\",\"numImages\":1,\"image_size\":\"1:1\"}')"
+    ]
+  }
+}

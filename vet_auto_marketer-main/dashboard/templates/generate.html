@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}توليد محتوى — عيادة {{ clinic }}{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2>✨ توليد محتوى جديد</h2>
+      <p class="muted text-sm mt-1">اختر نوع المحتوى المطلوب وسيتم إنشاء الصورة والكابشن تلقائياً</p>
+    </div>
+  </div>
+
+  <div class="field" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 24px;">
+    <label style="margin-bottom: 12px; display: block;">📏 اختر مقاس التصميم:</label>
+    <div class="flex gap-2 wrap">
+      <label class="checkbox" style="background: var(--purple-bg); padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <input type="radio" name="content_format" value="post" checked>
+        <span>بوست مربّع (1:1)</span>
+      </label>
+      <label class="checkbox" style="background: var(--purple-bg); padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <input type="radio" name="content_format" value="story">
+        <span>ستوري طولي (9:16)</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Tip -->
+    <div class="content-card">
+      <div class="preview" style="background: rgba(154, 78, 214, 0.1);">💡</div>
+      <div class="body">
+        <h3>نصيحة بيطرية</h3>
+        <p class="muted text-sm">نصائح طبية لملاّك الحيوانات لزيادة الوعي والثقة.</p>
+        <div class="field">
+          <input type="text" id="tip-topic" placeholder="الموضوع (مثلاً: تنظيف الأسنان)" />
+        </div>
+        <button class="btn btn-block" id="btn-tip" onclick="generateContent('tip', 'tip-topic', 'topic')">
+          🎨 توليد نصيحة
+        </button>
+        <div id="result-tip" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Trend -->
+    <div class="content-card">
+      <div class="preview" style="background: rgba(22, 163, 74, 0.1);">🔥</div>
+      <div class="body">
+        <h3>محتوى ترند</h3>
+        <p class="muted text-sm">اربط العيادة بالأحداث الجارية بطريقة ذكية وفكاهية.</p>
+        <div class="field">
+          <input type="text" id="trend-topic" placeholder="اكتب الترند هنا..." />
+        </div>
+        <button class="btn btn-block" id="btn-trend" onclick="generateContent('trend', 'trend-topic', 'trend')">
+          🔥 توليد من ترند
+        </button>
+        <div id="result-trend" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Daily -->
+    <div class="content-card">
+      <div class="preview" style="background: rgba(59, 130, 246, 0.1);">🏥</div>
+      <div class="body">
+        <h3>يوميات عيادة</h3>
+        <p class="muted text-sm">خلف الكواليس وقصص النجاح اليومية داخل العيادة.</p>
+        <div class="field">
+          <input type="text" id="daily-topic" placeholder="مثلاً: حالة إنقاذ اليوم" />
+        </div>
+        <button class="btn btn-block" id="btn-daily" onclick="generateContent('daily', 'daily-topic', 'topic')">
+          🏥 توليد يوميات
+        </button>
+        <div id="result-daily" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Emotional -->
+    <div class="content-card">
+      <div class="preview" style="background: rgba(239, 68, 68, 0.1);">❤️</div>
+      <div class="body">
+        <h3>محتوى عاطفي</h3>
+        <p class="muted text-sm">صور وقصص تلمس المشاعِر وتزيد من ولاء الجمهور.</p>
+        <div class="field">
+          <input type="text" id="emotional-topic" placeholder="مثلاً: لقاء بعد علاج" />
+        </div>
+        <button class="btn btn-block" id="btn-emotional" onclick="generateContent('emotional', 'emotional-topic', 'topic')">
+          ❤️ توليد عاطفي
+        </button>
+        <div id="result-emotional" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- Service -->
+    <div class="content-card">
+      <div class="preview" style="background: rgba(245, 158, 11, 0.1);">🩺</div>
+      <div class="body">
+        <h3>عرض خدمة</h3>
+        <p class="muted text-sm">تسويق مباشر لخدمات العيادة المتوفرة حالياً.</p>
+        <div class="field">
+          <input type="text" id="service-topic" placeholder="مثلاً: فحص شامل" />
+        </div>
+        <button class="btn btn-block" id="btn-service" onclick="generateContent('service', 'service-topic', 'topic')">
+          🩺 توليد عرض خدمة
+        </button>
+        <div id="result-service" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function generateContent(kind, inputId, fieldName){
+  const btn = document.getElementById('btn-' + kind);
+  const resultEl = document.getElementById('result-' + kind);
+  const input = document.getElementById(inputId);
+  const value = (input.value || '').trim();
+
+  if (kind === 'trend' && !value) {
+    toast('يرجى تحديد موضوع الترند أولاً', 'error');
+    input.focus();
+    return;
+  }
+
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = '⏳ جاري التوليد...';
+  resultEl.style.display = 'none';
+
+  const format = document.querySelector('input[name="content_format"]:checked').value;
+
+  try {
+    const payload = { [fieldName]: value, format };
+    
+    const r = await fetch('/dashboard/generate/' + kind, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({detail: 'فشل التوليد'}));
+      throw new Error(err.detail || 'فشل التوليد');
+    }
+    
+    const data = await r.json();
+    toast('تم التوليد بنجاح! 🎉', 'success');
+
+    resultEl.style.display = 'block';
+    resultEl.innerHTML = `
+      <div style="margin-top:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid var(--border);">
+        <div class="text-sm"><strong>✅ تم الإنشاء:</strong> ${data.topic || ''}</div>
+        <a href="/dashboard/ready" class="btn btn-sm btn-outline mt-1 btn-block">انتقل للمحتوى الجاهز ←</a>
+      </div>`;
+  } catch(e) {
+    toast(e.message || 'فشل التوليد', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.textContent = originalText;
+  }
+}
+</script>
+{% endblock %}

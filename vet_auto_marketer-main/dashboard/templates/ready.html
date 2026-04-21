@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}المحتوى الجاهز — عيادة {{ clinic }}{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div>
+      <h2>📦 المحتوى الجاهز للنشر</h2>
+      <p class="muted text-sm mt-1">
+        {% if items %}{{ items|length }} عنصر متاح · حمّل الصورة وشاركها مع الكابشن{% else %}لا يوجد محتوى جاهز حالياً{% endif %}
+      </p>
+    </div>
+    <a href="/dashboard/generate" class="btn btn-sm">✨ ولّد محتوى جديد</a>
+  </div>
+
+  {% if items %}
+  <div class="grid">
+    {% for item in items %}
+    <div class="content-card" id="card-{{ item.id }}">
+      <div class="preview" style="background: #000;">
+        {% if item.media_path %}
+          {% set filename = item.media_path.replace('\\','/').split('/')[-1] %}
+          <img src="/dashboard/media/{{ filename }}" alt="preview" loading="lazy"
+               onclick="openLightbox(this.src)"
+               onerror="this.style.display='none';this.parentElement.innerHTML='🖼️'"
+               style="cursor:zoom-in; transition: transform 0.3s ease;" />
+        {% else %}🖼️{% endif %}
+      </div>
+      <div class="body">
+        <div class="meta">
+          <span class="pill">{{ item.type }}</span>
+          <span class="pill">{{ item.content_type }}</span>
+          <span class="muted text-sm">#{{ item.id }}</span>
+        </div>
+        <div class="caption-preview">{{ item.caption or "بدون كابشن" }}</div>
+        <div class="actions">
+          <a class="btn btn-sm btn-block" href="/dashboard/download/{{ item.id }}">⬇️ تحميل الصورة</a>
+          <button class="btn btn-sm btn-outline btn-block" onclick="copyCaption({{ item.id }})">📋 نسخ الكابشن</button>
+          <div class="flex gap-2" style="width: 100%;">
+            <button class="btn btn-sm btn-success btn-block" onclick="markPosted({{ item.id }})">✅ تم النشر</button>
+            <button class="btn btn-sm btn-danger" style="width: 50px;" onclick="deleteItem({{ item.id }})">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    <div class="icon">📭</div>
+    <h3>لا يوجد محتوى جاهز</h3>
+    <p class="muted mt-1">ابدأ بتوليد أول بوست أو ستوري الآن</p>
+    <a href="/dashboard/generate" class="btn mt-2">✨ ولّد الآن</a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="closeLightbox()" style="position:fixed;inset:0;background:rgba(30,12,60,0.95);backdrop-filter:blur(10px);display:none;place-items:center;z-index:9997;cursor:zoom-out;padding:20px;">
+  <img id="lightboxImg" src="" style="max-width:92vw;max-height:92vh;border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,0.5); border: 1px solid var(--border);" />
+</div>
+
+<script>
+function openLightbox(src){
+  document.getElementById('lightboxImg').src = src;
+  const lb = document.getElementById('lightbox');
+  lb.style.display = 'grid';
+  lb.animate([{opacity: 0}, {opacity: 1}], {duration: 200, easing: 'ease-out'});
+}
+function closeLightbox(){
+  const lb = document.getElementById('lightbox');
+  const anim = lb.animate([{opacity: 1}, {opacity: 0}], {duration: 150, easing: 'ease-in'});
+  anim.onfinish = () => lb.style.display = 'none';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+{% endblock %}
