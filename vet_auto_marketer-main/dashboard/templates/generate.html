@@ -1,113 +1,329 @@
 {% extends "base.html" %}
-{% block title %}توليد محتوى — عيادة {{ clinic }}{% endblock %}
+{% block title %}توليد محتوى احترافي — عيادة {{ clinic }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .gen-container {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Step 1: Format Selection */
+  #step-format {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  #step-format.hidden {
+    display: none;
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  .format-cards {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  .format-card {
+    background: var(--purple-card);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+  }
+  .format-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--purple-primary);
+    background: var(--purple-card-hover);
+  }
+  .format-card .icon {
+    font-size: 3rem;
+  }
+  .format-card span {
+    font-weight: 800;
+    font-size: 1.2rem;
+  }
+
+  /* Step 2: Content Carousel */
+  #step-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    width: 100%;
+  }
+  #step-content.active {
+    display: block;
+    opacity: 1;
+  }
+
+  .swiper {
+    width: 100%;
+    max-width: 900px;
+    padding: 40px 0 60px;
+  }
+
+  .swiper-slide {
+    background: var(--purple-card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    height: auto;
+    display: flex;
+    flex-direction: row-reverse; /* Right to Left layout */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  }
+
+  .slide-img {
+    flex: 1.2;
+    background: #111;
+    overflow: hidden;
+    position: relative;
+  }
+  .slide-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .slide-info {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .slide-info h2 {
+    font-size: 2.2rem;
+    color: var(--text-main);
+  }
+  .slide-info p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .slide-info .field {
+    margin: 0;
+  }
+
+  .btn-gen {
+    background: var(--purple-primary);
+    padding: 16px;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    margin-top: 10px;
+  }
+
+  .back-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+  }
+
+  @media (max-width: 768px) {
+    .swiper-slide {
+      flex-direction: column;
+    }
+    .slide-img {
+      height: 200px;
+    }
+    .slide-info {
+      padding: 24px;
+      text-align: center;
+    }
+    .slide-info h2 { font-size: 1.6rem; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="card">
-  <div class="card-header">
-    <div>
-      <h2>✨ توليد محتوى جديد</h2>
-      <p class="muted text-sm mt-1">اختر نوع المحتوى المطلوب وسيتم إنشاء الصورة والكابشن تلقائياً</p>
-    </div>
-  </div>
-
-  <div class="field" style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 24px;">
-    <label style="margin-bottom: 12px; display: block;">📏 اختر مقاس التصميم:</label>
-    <div class="flex gap-2 wrap">
-      <label class="checkbox" style="background: var(--purple-bg); padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-        <input type="radio" name="content_format" value="post" checked>
-        <span>بوست مربّع (1:1)</span>
-      </label>
-      <label class="checkbox" style="background: var(--purple-bg); padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-        <input type="radio" name="content_format" value="story">
-        <span>ستوري طولي (9:16)</span>
-      </label>
-    </div>
-  </div>
-
-  <div class="grid">
-    <!-- Tip -->
-    <div class="content-card">
-      <div class="preview" style="background: rgba(154, 78, 214, 0.1);">💡</div>
-      <div class="body">
-        <h3>نصيحة بيطرية</h3>
-        <p class="muted text-sm">نصائح طبية لملاّك الحيوانات لزيادة الوعي والثقة.</p>
-        <div class="field">
-          <input type="text" id="tip-topic" placeholder="الموضوع (مثلاً: تنظيف الأسنان)" />
-        </div>
-        <button class="btn btn-block" id="btn-tip" onclick="generateContent('tip', 'tip-topic', 'topic')">
-          🎨 توليد نصيحة
-        </button>
-        <div id="result-tip" style="display:none;"></div>
+<div class="gen-container">
+  
+  <!-- Step 1: Format Selection -->
+  <div id="step-format">
+    <h1 style="text-align:center; margin-bottom: 20px;">✨ شنو حاب تنشر اليوم؟</h1>
+    <div class="format-cards">
+      <div class="format-card" onclick="setFormat('post')">
+        <div class="icon">🖼️</div>
+        <span>بوست مربّع</span>
       </div>
-    </div>
-
-    <!-- Trend -->
-    <div class="content-card">
-      <div class="preview" style="background: rgba(22, 163, 74, 0.1);">🔥</div>
-      <div class="body">
-        <h3>محتوى ترند</h3>
-        <p class="muted text-sm">اربط العيادة بالأحداث الجارية بطريقة ذكية وفكاهية.</p>
-        <div class="field">
-          <input type="text" id="trend-topic" placeholder="اكتب الترند هنا..." />
-        </div>
-        <button class="btn btn-block" id="btn-trend" onclick="generateContent('trend', 'trend-topic', 'trend')">
-          🔥 توليد من ترند
-        </button>
-        <div id="result-trend" style="display:none;"></div>
-      </div>
-    </div>
-
-    <!-- Daily -->
-    <div class="content-card">
-      <div class="preview" style="background: rgba(59, 130, 246, 0.1);">🏥</div>
-      <div class="body">
-        <h3>يوميات عيادة</h3>
-        <p class="muted text-sm">خلف الكواليس وقصص النجاح اليومية داخل العيادة.</p>
-        <div class="field">
-          <input type="text" id="daily-topic" placeholder="مثلاً: حالة إنقاذ اليوم" />
-        </div>
-        <button class="btn btn-block" id="btn-daily" onclick="generateContent('daily', 'daily-topic', 'topic')">
-          🏥 توليد يوميات
-        </button>
-        <div id="result-daily" style="display:none;"></div>
-      </div>
-    </div>
-
-    <!-- Emotional -->
-    <div class="content-card">
-      <div class="preview" style="background: rgba(239, 68, 68, 0.1);">❤️</div>
-      <div class="body">
-        <h3>محتوى عاطفي</h3>
-        <p class="muted text-sm">صور وقصص تلمس المشاعِر وتزيد من ولاء الجمهور.</p>
-        <div class="field">
-          <input type="text" id="emotional-topic" placeholder="مثلاً: لقاء بعد علاج" />
-        </div>
-        <button class="btn btn-block" id="btn-emotional" onclick="generateContent('emotional', 'emotional-topic', 'topic')">
-          ❤️ توليد عاطفي
-        </button>
-        <div id="result-emotional" style="display:none;"></div>
-      </div>
-    </div>
-
-    <!-- Service -->
-    <div class="content-card">
-      <div class="preview" style="background: rgba(245, 158, 11, 0.1);">🩺</div>
-      <div class="body">
-        <h3>عرض خدمة</h3>
-        <p class="muted text-sm">تسويق مباشر لخدمات العيادة المتوفرة حالياً.</p>
-        <div class="field">
-          <input type="text" id="service-topic" placeholder="مثلاً: فحص شامل" />
-        </div>
-        <button class="btn btn-block" id="btn-service" onclick="generateContent('service', 'service-topic', 'topic')">
-          🩺 توليد عرض خدمة
-        </button>
-        <div id="result-service" style="display:none;"></div>
+      <div class="format-card" onclick="setFormat('story')">
+        <div class="icon">📱</div>
+        <span>ستوري طولي</span>
       </div>
     </div>
   </div>
+
+  <!-- Step 2: Swipeable Carousel -->
+  <div id="step-content">
+    <button class="btn btn-ghost btn-sm back-btn" onclick="goBack()">← رجوع للمقاس</button>
+    
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper">
+        
+        <!-- Slide 1: Emotional -->
+        <div class="swiper-slide">
+          <div class="slide-img">
+            <img src="/dashboard/media/sample_emotional.png" alt="نموذج عاطفي">
+          </div>
+          <div class="slide-info">
+            <h2>عاطفي</h2>
+            <p>صور وقصص تلمس المشاعر وتبني علاقة قوية ودافئة مع جمهور العيادة.</p>
+            <div class="field">
+              <input type="text" id="emotional-topic" placeholder="الموضوع (اختياري: مثلاً لقاء لطيف)" />
+            </div>
+            <button class="btn btn-block btn-gen" id="btn-emotional" onclick="generateContent('emotional', 'emotional-topic', 'topic')">
+              ✨ انشاء محتوى عاطفي
+            </button>
+            <div id="result-emotional" class="mt-1" style="display:none;"></div>
+          </div>
+        </div>
+
+        <!-- Slide 2: 2D Cartoon -->
+        <div class="swiper-slide">
+          <div class="slide-img">
+            <img src="/dashboard/media/sample_cartoon.png" alt="نموذج كارتوني">
+          </div>
+          <div class="slide-info">
+            <h2>2D كارتوني</h2>
+            <p>رسومات توضيحية عصرية بأسلوب "Flat Design" تعطي لمسة فنية واحترافية للحساب.</p>
+            <div class="field">
+              <input type="text" id="cartoon-topic" placeholder="الموضوع (مثلاً: طبيب قطط)" />
+            </div>
+            <button class="btn btn-block btn-gen" id="btn-daily" onclick="generateContent('daily', 'cartoon-topic', 'topic')">
+              🖌️ انشاء رسم توضيحي
+            </button>
+            <div id="result-daily" class="mt-1" style="display:none;"></div>
+          </div>
+        </div>
+
+        <!-- Slide 3: Tips -->
+        <div class="swiper-slide">
+          <div class="slide-img">
+            <img src="/dashboard/media/sample_tip.png" alt="نموذج نصيحة">
+          </div>
+          <div class="slide-info">
+            <h2>نصيحة طبية</h2>
+            <p>معلومات طبية قيمة تُقدم بأسلوب مبسط لزيادة الوعي الصحي لمربي الحيوانات.</p>
+            <div class="field">
+              <input type="text" id="tip-topic" placeholder="الموضوع (مثلاً: تنظيف الأسنان)" />
+            </div>
+            <button class="btn btn-block btn-gen" id="btn-tip" onclick="generateContent('tip', 'tip-topic', 'topic')">
+              💡 انشاء نصيحة
+            </button>
+            <div id="result-tip" class="mt-1" style="display:none;"></div>
+          </div>
+        </div>
+
+        <!-- Slide 4: Trends -->
+        <div class="swiper-slide">
+          <div class="slide-img">
+            <img src="/dashboard/media/sample_trend.png" alt="نموذج ترند">
+          </div>
+          <div class="slide-info">
+            <h2>ترند ذكي</h2>
+            <p>استخدم المواضيع الرائجة والترندات العالمية واربطها بخدمات العيادة بطريقة ذكية.</p>
+            <div class="field">
+              <input type="text" id="trend-topic" placeholder="اكتب الترند هنا..." />
+            </div>
+            <button class="btn btn-block btn-gen" id="btn-trend" onclick="generateContent('trend', 'trend-topic', 'trend')">
+              🔥 انشاء من ترند
+            </button>
+            <div id="result-trend" class="mt-1" style="display:none;"></div>
+          </div>
+        </div>
+
+        <!-- Slide 5: Service -->
+        <div class="swiper-slide">
+          <div class="slide-img">
+            <img src="/dashboard/media/sample_service.png" alt="نموذج خدمة">
+          </div>
+          <div class="slide-info">
+            <h2>عرض خدمة</h2>
+            <p>سوق لخدمات العيادة (فحص، جراحة، مختبر) بأسلوب احترافي يشجع على الحجز.</p>
+            <div class="field">
+              <input type="text" id="service-topic" placeholder="الموضوع (مثلاً: فحص شامل)" />
+            </div>
+            <button class="btn btn-block btn-gen" id="btn-service" onclick="generateContent('service', 'service-topic', 'topic')">
+              🩺 انشاء عرض خدمة
+            </button>
+            <div id="result-service" class="mt-1" style="display:none;"></div>
+          </div>
+        </div>
+
+      </div>
+      <!-- Add Pagination -->
+      <div class="swiper-pagination"></div>
+      <!-- Add Navigation -->
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
+let selectedFormat = 'post';
+let swiper;
+
+function setFormat(fmt) {
+  selectedFormat = fmt;
+  document.getElementById('step-format').classList.add('hidden');
+  document.getElementById('step-content').classList.add('active');
+  
+  // Initialize Swiper if not already initiated
+  if (!swiper) {
+    swiper = new Swiper(".mySwiper", {
+      effect: "coverflow",
+      grabCursor: true,
+      centeredSlides: true,
+      slidesPerView: "auto",
+      coverflowEffect: {
+        rotate: 15,
+        stretch: 0,
+        depth: 100,
+        modifier: 2,
+        slideShadows: true,
+      },
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+    });
+  }
+}
+
+function goBack() {
+  document.getElementById('step-format').classList.remove('hidden');
+  document.getElementById('step-content').classList.remove('active');
+}
+
 async function generateContent(kind, inputId, fieldName){
   const btn = document.getElementById('btn-' + kind);
   const resultEl = document.getElementById('result-' + kind);
@@ -126,10 +342,8 @@ async function generateContent(kind, inputId, fieldName){
   btn.textContent = '⏳ جاري التوليد...';
   resultEl.style.display = 'none';
 
-  const format = document.querySelector('input[name="content_format"]:checked').value;
-
   try {
-    const payload = { [fieldName]: value, format };
+    const payload = { [fieldName]: value, format: selectedFormat };
     
     const r = await fetch('/dashboard/generate/' + kind, {
       method: 'POST',
@@ -147,9 +361,9 @@ async function generateContent(kind, inputId, fieldName){
 
     resultEl.style.display = 'block';
     resultEl.innerHTML = `
-      <div style="margin-top:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px;border:1px solid var(--border);">
-        <div class="text-sm"><strong>✅ تم الإنشاء:</strong> ${data.topic || ''}</div>
-        <a href="/dashboard/ready" class="btn btn-sm btn-outline mt-1 btn-block">انتقل للمحتوى الجاهز ←</a>
+      <div style="margin-top:12px;padding:12px;background:rgba(255,255,255,0.1);border-radius:12px;border:1px solid var(--border);">
+        <div class="text-sm"><strong>✅ جاهز للمراجعة:</strong> ${data.topic || kind}</div>
+        <a href="/dashboard/ready" class="btn btn-sm btn-outline mt-1 btn-block">المحتوى الجاهز ←</a>
       </div>`;
   } catch(e) {
     toast(e.message || 'فشل التوليد', 'error');
