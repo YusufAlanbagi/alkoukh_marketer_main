@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض التصميم لعيادة الكوخ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <style>
+        :root {
+            --purple-bg: #3B1362;
+            --purple-card: #4A1A7D;
+            --purple-card-hover: #5E20A0;
+            --purple-primary: #9A4ED6;
+            --purple-primary-hover: #B87BE8;
+            --text-main: #FFFFFF;
+            --text-muted: #D4B0F2;
+            --border: #7B2FBE;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            --transition: all 0.3s ease;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Tajawal", sans-serif;
+            background: var(--purple-bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .gen-container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+        }
+
+        /* Step 1: Format */
+        #step-format {
+            text-align: center;
+            transition: var(--transition);
+        }
+        #step-format.hidden { display: none; }
+
+        .format-cards {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .format-card {
+            background: var(--purple-card);
+            border: 2px solid var(--border);
+            padding: 40px;
+            border-radius: 24px;
+            width: 180px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .format-card:hover { border-color: var(--purple-primary); transform: translateY(-5px); background: var(--purple-card-hover); }
+        .format-card .icon { font-size: 3rem; margin-bottom: 10px; }
+        .format-card span { font-weight: 800; display: block; }
+
+        /* Step 2: Carousel */
+        #step-content { display: none; opacity: 0; transition: 0.5s; }
+        #step-content.active { display: block; opacity: 1; }
+
+        .swiper { width: 100%; padding: 20px 0 50px; }
+        .swiper-slide {
+            background: var(--purple-card);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: row-reverse;
+            box-shadow: var(--shadow);
+        }
+
+        .slide-img { flex: 1.2; height: 450px; background: #000; }
+        .slide-img img { width: 100%; height: 100%; object-fit: cover; }
+        .slide-info { flex: 1; padding: 40px; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+        .slide-info h2 { font-size: 2.2rem; }
+        .slide-info p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+
+        .btn {
+            background: var(--purple-primary);
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+        .btn:hover { background: var(--purple-primary-hover); transform: scale(1.02); }
+
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #22C55E;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            display: none;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            .swiper-slide { flex-direction: column; }
+            .slide-img { height: 200px; }
+            .slide-info { padding: 20px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="gen-container">
+    <!-- Step 1 -->
+    <div id="step-format">
+        <h1>✨ مرحباً بك دكتور.. شنو حاب تنشر اليوم؟</h1>
+        <p style="color: var(--text-muted); margin-top: 10px;">هذا عرض تجريبي للتصميم الجديد (بدون بايثون)</p>
+        <div class="format-cards">
+            <div class="format-card" onclick="next()">
+                <div class="icon">🖼️</div>
+                <span>بوست مربّع</span>
+            </div>
+            <div class="format-card" onclick="next()">
+                <div class="icon">📱</div>
+                <span>ستوري طولي</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="step-content">
+        <button class="back-btn" onclick="back()">← رجوع للمقاس</button>
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                
+                <div class="swiper-slide">
+                    <div class="slide-img"><img src="content/nano_banana/sample_emotional.png" onerror="this.src='https://images.unsplash.com/photo-1597673030062-0a0f1a801a31?q=80&w=800'"></div>
+                    <div class="slide-info">
+                        <h2>محتوى عاطفي</h2>
+                        <p>صور تلمس القلوب وتبني علاقة قوية مع متابعين العيادة.</p>
+                        <button class="btn" onclick="showToast()">✨ إنشاء الآن</button>
+                    </div>
+                </div>
+
+                <div class="swiper-slide">
+                    <div class="slide-img"><img src="content/nano_banana/sample_cartoon.png" onerror="this.src='https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=800'"></div>
+                    <div class="slide-info">
+                        <h2>2D كارتوني</h2>
+                        <p>رسومات توضيحية عصرية تعطي طابعاً فنياً واحترافياً لحسابك.</p>
+                        <button class="btn" onclick="showToast()">🖌️ إنشاء الآن</button>
+                    </div>
+                </div>
+
+                <div class="swiper-slide">
+                    <div class="slide-img"><img src="content/nano_banana/sample_tip.png" onerror="this.src='https://images.unsplash.com/photo-1628009368231-7bb7cfcb0def?q=80&w=800'"></div>
+                    <div class="slide-info">
+                        <h2>نصيحة طبية</h2>
+                        <p>قدم معلومات قيمة لمربي الحيوانات بأسلوب مبسط وجميل.</p>
+                        <button class="btn" onclick="showToast()">💡 إنشاء الآن</button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="swiper-pagination"></div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast">✅ تم طلب الإنشاء بنجاح (نسخة تجريبية)</div>
+
+<script>
+    let swiper;
+
+    function next() {
+        document.getElementById('step-format').classList.add('hidden');
+        document.getElementById('step-content').classList.add('active');
+        if (!swiper) {
+            swiper = new Swiper(".mySwiper", {
+                effect: "cards",
+                grabCursor: true,
+                pagination: { el: ".swiper-pagination", clickable: true },
+            });
+        }
+    }
+
+    function back() {
+        document.getElementById('step-format').classList.remove('hidden');
+        document.getElementById('step-content').classList.remove('active');
+    }
+
+    function showToast() {
+        const t = document.getElementById('toast');
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 3000);
+    }
+</script>
+
+</body>
+</html>
