@@ -33,12 +33,21 @@
           <span class="muted text-sm">#{{ item.id }}</span>
         </div>
         <div class="caption-preview">{{ item.caption or "بدون كابشن" }}</div>
-        <div class="actions">
-          <a class="btn btn-sm btn-block" href="/dashboard/download/{{ item.id }}">⬇️ تحميل الصورة</a>
-          <button class="btn btn-sm btn-outline btn-block" onclick="copyCaption({{ item.id }})">📋 نسخ الكابشن</button>
-          <div class="flex gap-2" style="width: 100%;">
-            <button class="btn btn-sm btn-success btn-block" onclick="markPosted({{ item.id }})">✅ تم النشر</button>
-            <button class="btn btn-sm btn-danger" style="width: 50px;" onclick="deleteItem({{ item.id }})">🗑️</button>
+        <div class="actions" style="margin-top: 16px;">
+          <a class="btn btn-block" href="/dashboard/download/{{ item.id }}" style="background: var(--purple-primary);">
+            📥 تحميل الصورة
+          </a>
+          
+          <div class="flex gap-2 mt-1" style="width: 100%;">
+            <button class="btn btn-outline btn-block btn-sm" onclick="copyCaption({{ item.id }})" title="نسخ الكابشن">
+              📋 كابشن
+            </button>
+            <button class="btn btn-success btn-block btn-sm" onclick="markPosted({{ item.id }})" title="تم النشر">
+              ✅ نشرت
+            </button>
+            <button class="btn btn-danger btn-sm" style="width: 45px; flex-shrink: 0;" onclick="deleteItem({{ item.id }})" title="حذف">
+              🗑️
+            </button>
           </div>
         </div>
       </div>

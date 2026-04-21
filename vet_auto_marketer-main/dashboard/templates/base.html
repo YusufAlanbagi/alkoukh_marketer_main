@@ -66,8 +66,10 @@
     /* Topbar */
     .topbar {
       position: sticky; top: 0; z-index: 50;
-      background: var(--purple-bg);
-      border-bottom: 1px solid var(--border);
+      background: rgba(59, 19, 98, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(123, 47, 190, 0.3);
       padding: 14px 0;
     }
     .topbar-inner {
@@ -85,13 +87,19 @@
 
     nav.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
     nav.tabs a {
-      padding: 10px 18px; color: var(--text-muted); font-weight: 600; font-size: .92rem;
-      border-radius: var(--radius-sm); border: 1px solid transparent;
+      padding: 10px 22px; color: var(--text-muted); font-weight: 600; font-size: .92rem;
+      border-radius: var(--radius-pill); border: 1px solid transparent;
+      transition: var(--transition);
     }
-    nav.tabs a:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+    nav.tabs a:hover { 
+      color: var(--text-main); 
+      background: rgba(154, 78, 214, 0.2); 
+      border-color: var(--purple-primary);
+    }
     nav.tabs a.active {
       color: var(--text-main); font-weight: 700;
-      background: var(--purple-card); border-color: var(--border);
+      background: var(--purple-primary); border-color: var(--purple-primary);
+      box-shadow: 0 0 15px rgba(154, 78, 214, 0.4);
     }
 
     /* Hero */
@@ -105,7 +113,10 @@
 
     /* Cards */
     .card {
-      background: var(--purple-card); border: 1px solid var(--border);
+      background: rgba(74, 26, 125, 0.65); 
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(123, 47, 190, 0.4);
       border-radius: var(--radius); padding: 28px; margin-bottom: 22px;
       box-shadow: var(--shadow);
     }
