@@ -23,49 +23,49 @@ POLL_URL = f"{API_BASE}/api/v1/nanobanana/record-info"
 POLL_INTERVAL_S = 3
 POLL_TIMEOUT_S = 180
 
-BRAND_STYLE_REALISTIC = """
-STYLE: Masterpiece Photorealistic Photography.
-Visual identity: ALKOUKH Veterinary Clinic (الكوخ) — Premium Iraqi veterinary brand.
-Composition: Professional studio lighting, shallow depth of field (bokeh), sharp focus on pet's eyes.
-Attributes: High-resolution, cinematic lighting, 8k, warm natural tones, professional camera gear (Sony A7R IV).
-Branding: Subtle integration of deep royal purple (#7B2FBE) and magenta-pink (#D946EF) in the environment or accessories.
-Rules: NO TEXT, NO LETTERS, NO WORDS. healthy, adorable pets only.
+# =============================================================
+# Brand Style Presets — الصورة تحمل رسالتها بداخلها
+# =============================================================
+
+BRAND_STYLE_INFOGRAPHIC = """
+STYLE: Premium social media infographic design for ALKOUKH Veterinary Clinic (عيادة الكوخ).
+Brand colors: Royal purple (#7B2FBE) and Magenta-Pink (#D946EF) with white text.
+Composition: Professional graphic design layout — NOT a photograph.
+Layout: The image itself is the complete message:
+  - Large bold Arabic text as the MAIN HEADLINE at the top or center (make it read clearly).
+  - A beautiful photorealistic illustration or photo of a cute pet (cat or dog) integrated into the layout.
+  - Supporting visual icons or graphical elements that reinforce the message.
+  - Clinic brand name "الكوخ" in a stylish subtle corner watermark.
+  - Gradient purple-to-magenta background with glassmorphism card elements.
+Requirement: The Arabic text inside the image MUST be legible, large, and be the focal point.
+Output: A complete, standalone social media post — no caption needed to understand it.
 """
 
-FLAT_ILLUSTRATION_STYLE = """
-STYLE: Modern Flat 2D Vector Illustration.
-Visual identity: ALKOUKH Veterinary Clinic (الكوخ) branding.
-Composition: Minimalist, clean bold lines, flat colors, no complex gradients on characters. 
-Attributes: Inspired by modern digital vector art, clean SVG-style paths, professional character design.
-Character: Friendly tan-skinned Iraqi veterinarian with dark hair, wearing purple scrubs/apron with brand colors.
-Branding: Heavy use of royal purple (#7B2FBE), magenta (#D946EF), and lavender accents. 
-Mood: Warm, welcoming, and high-tech minimalist.
-Rules: NO TEXT, NO LETTERS, NO WORDS.
+BRAND_STYLE_POSTER = """
+STYLE: Professional Arabic social media poster / educational card.
+Brand: ALKOUKH Veterinary Clinic (الكوخ) — Iraq's premium vet brand.
+Color palette: Deep purple (#7B2FBE), Magenta (#D946EF), clean white backgrounds for text sections.
+Layout structure:
+  - TOP: Clinic logo area / brand name with small paw icon
+  - CENTER: Large, bold Arabic text title — the MAIN message or tip
+  - MIDDLE VISUAL: A stunning high-quality photo of a pet (cat/dog/rabbit) embedded as a circle or card
+  - BOTTOM: 2-3 short bullet points OR a key fact — written in Arabic
+  - FOOTER: Subtle gradient band with clinic name
+Aesthetic: Modern, clean, Instagram-worthy. Inspired by top-tier Arab veterinary social accounts.
+Requirement: ALL Arabic text in the image must be sharp, bold, and clearly readable.
 """
 
-
-# ستوريات بأسلوب بولارويد — مكتشف من highlights عيادة الكوخ
 STORY_STYLE = """
-Instagram Story design matching ALKOUKH Veterinary Clinic (الكوخ) brand:
-
-Layout structure (9:16 vertical):
-  - Full-bleed purple/magenta gradient background
-  - CENTER: A white Polaroid-style photo frame (slightly tilted 2-3 degrees)
-  - Inside the frame: a photorealistic image of a cute pet or clinic scene
-  - Below the Polaroid frame: empty space for Arabic text overlay
-  - Above the frame: empty space for clinic name text
-  - Small hand-drawn heart doodle near the bottom of the Polaroid
-
-Color & mood:
-  - Background: rich purple (#7B2FBE) to magenta (#D946EF) gradient
-  - Polaroid frame: clean white with subtle shadow
-  - Overall mood: warm, friendly, professional, inviting
-  - Soft ambient glow around the Polaroid frame
-
-STRICT RULES:
-- NO TEXT, NO LETTERS, NO WORDS anywhere in the image.
-- NO Arabic or English script. Text will be added separately.
-- Pure visual composition only.
+Instagram Story for ALKOUKH Veterinary Clinic — 9:16 vertical format.
+Design style: Premium Arabic educational story card.
+Layout (top to bottom):
+  - TOP SECTION (25%): Clinic name header "عيادة الكوخ" on purple gradient band
+  - MAIN VISUAL (40%): Beautiful pet photo (cat or dog) with rounded corners — real photographic quality
+  - MIDDLE TEXT (20%): Large bold Arabic headline — the main tip or message — white text on purple card
+  - BOTTOM (15%): Short CTA or sub-text in Arabic + small paw icon
+Color: Purple (#7B2FBE) to Magenta (#D946EF) gradient background throughout.
+Arabic text must be LARGE, BOLD, and the primary focal point of the story.
+The image must be self-explanatory — no external caption needed.
 """
 
 VET_TIP_TOPICS = [
@@ -157,12 +157,12 @@ class NanaBananaService:
 
     def _get_random_style(self) -> str:
         import random
-        return random.choice([BRAND_STYLE_REALISTIC, FLAT_ILLUSTRATION_STYLE])
+        return random.choice([BRAND_STYLE_INFOGRAPHIC, BRAND_STYLE_POSTER])
 
     def _build_prompt(self, description: str, aspect: str, style_override: str | None = None) -> str:
         style = style_override or self._get_random_style()
         ratio_hint = "square 1:1 format" if aspect == "1:1" else "vertical 9:16 story format"
-        return f"Professional vet content: {description}. | {style} | Format: {ratio_hint}."
+        return f"Social media content design: {description}. | {style} | Format: {ratio_hint}. | The Arabic text inside the image is MANDATORY and must be large, bold, and clearly legible."
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=2, max=10))
     def _submit(self, prompt: str, aspect_ratio: str, image_urls: list[str] | None = None) -> str:
@@ -251,14 +251,15 @@ class NanaBananaService:
         return prompt, aspect_ratio
 
     def generate_tip_image(self, topic: str, content_format: str = "post") -> Path | None:
-        """يولّد صورة نصيحة بيطرية — بأسلوب احترافي متنوع"""
+        """يولّد بوستر نصيحة بيطرية — الصورة تحمل النصيحة كاملة بداخلها"""
         try:
             base_prompt = (
-                f"Expert-level educational visual for a vet clinic. Subject: '{topic}'. "
-                "The composition highlights a specific medical tip or animal care situation. "
-                "Main focus: Eye-contact with a healthy pet or an instructional vet demonstration. "
-                "Include brand colors purple and magenta in background elements. "
-                "The bottom third is reserved for a clean gradient band for caption overlay. "
+                f"Create a complete Arabic veterinary tip infographic. "
+                f"The MAIN HEADLINE in Arabic at the top: bold, large, readable — about: '{topic}'. "
+                f"Include 2-3 bullet points written in Arabic inside the design explaining the tip clearly. "
+                f"A beautiful high-quality photo of a cute cat or dog integrated as a visual element. "
+                f"Design should feel complete and self-explanatory — a person reading only the image understands the full tip. "
+                f"Clinic name 'الكوخ' in small watermark. Brand colors: purple #7B2FBE and magenta #D946EF."
             )
             prompt, aspect_ratio = self._apply_format(base_prompt, content_format)
             prompt = self._build_prompt(prompt, aspect_ratio)
@@ -270,13 +271,15 @@ class NanaBananaService:
             return None
 
     def generate_trend_image(self, trend: str, caption_hint: str = "", content_format: str = "post") -> Path | None:
-        """يولّد صورة مرتبطة بترند بأسلوب احترافي"""
+        """يولّد بوستر ترند بيطري مع نص الرسالة مدمج بالصورة"""
         try:
             base_prompt = (
-                f"A sophisticated clinical visual inspired by the viral trend: '{trend}'. "
-                f"Creative context: {caption_hint[:120] if caption_hint else 'trending animal topic'}. "
-                "A clever, Instagram-worthy composition that bridges the trend with expert veterinary care. "
-                "Vibrant pop of purple and magenta brand colors. Clean focal point. "
+                f"Create an Arabic social media post connecting the viral trend '{trend}' to veterinary care. "
+                f"LARGE bold Arabic text inside the image showing a clever, witty headline that links the trend to pet health. "
+                f"{('Context: ' + caption_hint[:100]) if caption_hint else ''} "
+                f"An eye-catching, Instagram-worthy composition. "
+                f"A photogenic cat or dog featured prominently as the visual hook. "
+                f"Purple (#7B2FBE) and magenta (#D946EF) brand colors. Clinic name 'الكوخ' visible."
             )
             prompt, aspect_ratio = self._apply_format(base_prompt, content_format)
             prompt = self._build_prompt(prompt, aspect_ratio)
@@ -288,17 +291,14 @@ class NanaBananaService:
             return None
 
     def generate_daily_life_image(self, theme: str, content_format: str = "post") -> Path | None:
-        """يولّد صورة يوميات العيادة — لقطات من الحياة اليومية"""
+        """يولّد بوستر يوميات العيادة — مشهد واقعي مع عنوان واضح مدمج بالصورة"""
         try:
             base_prompt = (
-                f"A warm, candid-style photo from inside a veterinary clinic, theme: '{theme}'. "
-                "Photorealistic scene showing a modern, clean veterinary clinic interior. "
-                "Could include: a veterinarian examining a pet, a pet on an examination table, "
-                "medical equipment in the background, staff wearing professional attire. "
-                "Warm overhead lighting, slightly desaturated for a natural candid feel. "
-                "The scene should feel authentic and documentary-style, like a behind-the-scenes glimpse. "
-                "Soft purple/lavender color tones throughout the image. "
-                "NO text, no letters, no typography anywhere."
+                f"Create a behind-the-scenes clinic social media post: '{theme}'. "
+                f"LARGE Arabic text headline integrated into the image design, describing the scene or a warm human message. "
+                f"Photorealistic scene of a modern veterinary clinic: vet staff, cute pets, professional equipment. "
+                f"Warm and authentic feel — like a premium Instagram clinic account. "
+                f"Purple/lavender tones. Clinic name 'الكوخ' subtly visible in the scene or as overlay."
             )
             prompt, aspect_ratio = self._apply_format(base_prompt, content_format)
             prompt = self._build_prompt(prompt, aspect_ratio)
@@ -310,14 +310,15 @@ class NanaBananaService:
             return None
 
     def generate_emotional_image(self, theme: str, content_format: str = "post") -> Path | None:
-        """يولّد صورة عاطفية بأسلوب احترافي يلمس القلب"""
+        """يولّد بوستر عاطفي — الصورة تنقل المشاعر والرسالة بشكل متكامل"""
         try:
             base_prompt = (
-                f"A cinematic, high-quality emotional masterpiece: '{theme}'. "
-                "Heartwarming interaction between a pet and its caretaker. "
-                "Deep emotional resonance, soft lighting, evocative composition. "
-                "Subtle branding with lavender and soft purple hues. "
-                "Premium artistic quality designed for high engagement."
+                f"Create a deeply emotional Arabic social media post: '{theme}'. "
+                f"LARGE, evocative Arabic quote or headline embedded inside the image — the emotional message in bold. "
+                f"A heartwarming cinematic scene: a pet and its owner or a vet caring for an animal. "
+                f"Soft, emotional lighting — cinematic quality. "
+                f"The image should make someone stop scrolling and feel something. "
+                f"Subtle lavender and purple tones. Clinic name 'الكوخ' as a gentle watermark."
             )
             prompt, aspect_ratio = self._apply_format(base_prompt, content_format)
             prompt = self._build_prompt(prompt, aspect_ratio)
@@ -329,18 +330,15 @@ class NanaBananaService:
             return None
 
     def generate_service_image(self, service: str, content_format: str = "post") -> Path | None:
-        """يولّد صورة خدمة بيطرية — عرض الخدمات باحترافية"""
+        """يولّد بوستر خدمة بيطرية — إعلان احترافي مع كل المعلومات بالصورة"""
         try:
             base_prompt = (
-                f"Professional veterinary service showcase photo: '{service}'. "
-                "A clean, modern veterinary clinic setting showing the service being performed. "
-                "Photorealistic: veterinary equipment, examination rooms, lab tools, or surgical suite. "
-                "A healthy pet is visible, being cared for by unseen hands (or gentle implied presence). "
-                "Clinical but warm aesthetic — modern medical meets compassionate care. "
-                "Deep purple (#7B2FBE) and white color scheme throughout the environment. "
-                "Bottom 35% has a solid deep purple band for text overlay. "
-                "Premium, trust-building imagery. "
-                "NO text, no letters, no typography anywhere."
+                f"Create a professional Arabic service advertisement for a veterinary clinic. Service: '{service}'. "
+                f"LARGE bold Arabic title of the service at the top of the image. "
+                f"Key benefits or features of the service written as 2-3 short Arabic bullet points inside the design. "
+                f"A professional veterinarian photo or a pet being cared for as the hero visual. "
+                f"Clean medical aesthetic: modern clinic, professional purple (#7B2FBE) and white color scheme. "
+                f"Clinic name 'الكوخ' prominently visible. CTA like 'احجز الآن' or 'تواصل معنا' in Arabic at bottom."
             )
             prompt, aspect_ratio = self._apply_format(base_prompt, content_format)
             prompt = self._build_prompt(prompt, aspect_ratio)
