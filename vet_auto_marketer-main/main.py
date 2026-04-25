@@ -120,8 +120,9 @@ async def health() -> Dict[str, Any]:
 
 
 @app.get("/")
-async def root() -> Dict[str, str]:
-    return {"service": "Vet_Auto_Marketer", "docs": "/docs"}
+async def root():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/dashboard/")
 
 
 # =============================================================

@@ -49,11 +49,32 @@
     cursor: pointer;
     transition: var(--transition);
     box-shadow: var(--shadow);
+    position: relative;
   }
   .format-card:hover {
     transform: translateY(-8px);
     border-color: var(--purple-primary);
     background: var(--purple-card-hover);
+  }
+
+  /* Neon Top Hover Animation */
+  .format-card::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: #EED4FF;
+    box-shadow: 0 0 10px #EED4FF, 0 0 20px #B87BE8, 0 0 30px #9A4ED6;
+    transition: width 0.4s ease-out;
+    border-radius: 2px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .format-card:hover::before {
+    width: calc(100% - 36px);
   }
   .format-card .icon {
     font-size: 3rem;
